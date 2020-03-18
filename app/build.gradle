@@ -3,6 +3,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
+    signingConfigs {
+        debug {
+            storePassword 'zhop11chiK!st'
+            storeFile file('/Users/ygunawan/StudioProjects/EsimTestApp/spectrum-wireless-android-keystore.jks')
+            keyAlias = 'connection-manager'
+            keyPassword 'm1u9zj1o!78'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
@@ -31,7 +39,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.core:core-ktx:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.github.ygunawanpk:CharterEsimLibrary:v1.0.1'
+    implementation 'com.github.ygunawanpk:CharterEsimLibrary:v1.0.9'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

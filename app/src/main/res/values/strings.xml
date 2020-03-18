@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">EsimTestApp</string>
+    <string name="download_esim">Download eSim</string>
+    <string name="download_failure">Download Failure</string>
 </resources>
