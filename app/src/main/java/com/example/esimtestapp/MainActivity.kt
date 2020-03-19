@@ -6,52 +6,37 @@ import android.os.Build
 import android.os.Bundle
 import android.telephony.SubscriptionInfo
 import android.telephony.SubscriptionManager
+import android.telephony.TelephonyManager
 import android.telephony.euicc.EuiccManager
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.charter.esimlibrary.EsimHandler
+import com.charter.esimlibrary.OnEsimDownloadListener
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnEsimDownloadListener {
 
-    private val esimHandler = EsimHandler(::onSuccess, ::onFailure)
-    private val activationCode: String = "LPA:1\$SM-V4-056-A-GTM.PR.GO-ESIM.COM\$2BAAFB3DE42F05FB2314F6875376A9B1"
+    private lateinit var esimHandler: EsimHandler
+    //private val activationCode1: String = "LPA:1\$SM-V4-056-A-GTM.PR.GO-ESIM.COM\$47379860C27F12B99B49F9C3E214716E"
+    private val activationCode: String = "LPA:1\$SM-V4-056-A-GTM.PR.GO-ESIM.COM\$540770E229B4D6AE0A54EB75619F5E81"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        esimHandler.init(applicationContext)
+        esimHandler = EsimHandler(applicationContext)
+        esimHandler.init(this)
 
         btnDownloadEsim.setOnClickListener {
-            esimHandler.downloadEsim(activationCode, true)
-        }
-
-        btnDownloadFailed.setOnClickListener {
-            esimHandler.downloadEsim(activationCode, false)
+            esimHandler.downloadEsim(activationCode)
         }
 
         val subsList = getActiveSubscriptions()
         Log.d("TAG_ESIMTESTAPP", subsList.toString())
 
-    }
-
-    private fun onSuccess(result: String) {
-        Toast.makeText(this@MainActivity, result, Toast.LENGTH_LONG).show()
-        Log.d("TAG_ESIMTESTAPP", result)
-    }
-
-    private fun onFailure(result: String) {
-        Toast.makeText(this@MainActivity, result, Toast.LENGTH_LONG).show()
-        Log.d("TAG_ESIMTESTAPP", "DOWNLOAD FAILED!")
-        Log.d("TAG_ESIMTESTAPP", activationCode)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        esimHandler.onDestroy()
+//        checkEuiccInfo()
     }
 
     @SuppressLint("MissingPermission")
@@ -76,5 +61,28 @@ class MainActivity : AppCompatActivity() {
                 .show()
             Log.i("TAG_ESIM", applicationContext.getString(R.string.eid_not_present))
         }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.Q)
+    private fun switchtMultiSimConfiguration() {
+        try {
+            Log.i("TAG_ESIM", "Switching multisim config to 2 sims")
+            val telephonyManager =
+                applicationContext.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+            telephonyManager.switchMultiSimConfig(2)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    override fun onFailure(result: String) {
+        Toast.makeText(this@MainActivity, result, Toast.LENGTH_LONG).show()
+        Log.d("TAG_ESIMTESTAPP", "DOWNLOAD FAILED!")
+        Log.d("TAG_ESIMTESTAPP", activationCode)
+    }
+
+    override fun onSuccess(result: String) {
+        Toast.makeText(this@MainActivity, result, Toast.LENGTH_LONG).show()
+        Log.d("TAG_ESIMTESTAPP", result)
     }
 }
